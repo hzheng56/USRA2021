@@ -141,6 +141,15 @@ public class csvProcessor
 		}
 	}
 
+
+	private static void outputCSV2(String path, String ctg, ArrayList<String[]> table, int wkCol)
+	{
+		// generate files by each month
+
+
+	}
+
+
 	/**
 	 * This method generates .csv files contained in different directories based on needs.
 	 * @param path	path to output new .csv files
