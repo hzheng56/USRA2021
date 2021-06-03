@@ -22,7 +22,7 @@ public class csvProcessor
 	public static void main(String[] args)
 	{
 		/* Initialize variables */
-		String filePath = "/Users/zhenghao/usra2021/";	// may require changes
+		String filePath = "";	// may require changes
 		String fileName = "COVID19-eng.csv";
 		rows = new ArrayList<>();
 		int colRegion = 1;
