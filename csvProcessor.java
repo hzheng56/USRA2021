@@ -13,28 +13,26 @@ import java.util.*;
 public class csvProcessor
 {
 	private static ArrayList<String[]> rows;	// store all data in an entire .csv file
+	private static final int HPSTATUS = 3;	// number of hospitalization status
+	private static final int REGIONS = 5;	// number of sub regions of Canada
 	private static final int WEEKS = 52;	// max value of COV_EW is 52 (except unknown)
-	private static final int HPSTATUS = 3;
 
 	/* Main method */
 	public static void main(String[] args)
 	{
 		/* Initialize variables */
-		String srcPath = "";	// may require changes
+		String srcPath = "update_2021-5-11/";	// may require changes
 		String srcName = "COVID19-eng.csv";
+//		String srcPath = "update_2021-6-16/";	// may require changes
+//		String srcName = "COVID19-eng 2021Jun08.csv";
+
 		rows = new ArrayList<>();
-		int colWeek = 2;
+		int colRegion = 1;
 		int colYear = 4;
 		int colIcu = 11;
-		int colDeath = 15;
 
 		/* Read file */
 		readCSV(srcPath + srcName);
-
-		/* Split the original file by years, output new files */
-		splitCSV_year(rows, colYear, 20);
-		splitCSV_year(rows, colYear, 21);
-		splitCSV_year(rows, colYear, 99);
 
 		/* select entries that have required COV_HSP values each year in Canada */
 		ArrayList<String[]> year20 = getEntry(rows, colYear, 20);
@@ -60,6 +58,16 @@ public class csvProcessor
 		outputCSV(hp_status_20);
 		outputCSV(hp_status_21);
 
+		/* Split the original file by years, then output new files */
+		splitCSV(rows, colYear, 20);
+		splitCSV(rows, colYear, 21);
+		splitCSV(rows, colYear, 99);
+
+		/* Split the original file by regions, then output new files */
+		for (int i = 1; i <= REGIONS; i++) {
+			splitCSV(rows, colRegion, i);
+		}
+
 		/* Statistic outputs */
 		//todo
 	}
@@ -77,8 +85,7 @@ public class csvProcessor
 	private static void outputCSV(ArrayList<ArrayList<String[]>> tables)
 	{
 		String[] dir_hp_status = {"hp_status/hp_icu/", "hp_status/hp_non_icu/", "hp_status/non_hp/"};
-		String[] dir_region = {"CANADA/", "Atlantic/", "Quebec/",
-				"Ontario & Nunavut/", "Prairies/", "British Columbia & Yukon/"};
+		String[] dir_region = {"CANADA/", "Atlantic/", "Quebec/", "Ontario & Nunavut/", "Prairies/", "British Columbia & Yukon/"};
 		int colWeek = 2, colDeath = 15;
 
 		for (int i = 0; i < dir_region.length; i++) {
@@ -97,8 +104,7 @@ public class csvProcessor
 	 * @param dthCol	column number for COV_DTH
 	 * @param regVal	value of COV_REG
 	 */
-	private static void getCSV_death(ArrayList<ArrayList<String[]>> tables,
-									 String[] hpDir, String[] regDir, int dthCol, int regVal)
+	private static void getCSV_death(ArrayList<ArrayList<String[]>> tables, String[] hpDir, String[] regDir, int dthCol, int regVal)
 	{
 		String[] dth_status_names = {"_death_", "_survival_"};
 
@@ -128,8 +134,7 @@ public class csvProcessor
 	 * @param wkCol		column number for COV_EW
 	 * @param regVal	value of COV_REG
 	 */
-	private static void getCSV_week(ArrayList<ArrayList<String[]>> tables,
-									String[] hpDir, String[] regDir, int wkCol, int regVal)
+	private static void getCSV_week(ArrayList<ArrayList<String[]>> tables, String[] hpDir, String[] regDir, int wkCol, int regVal)
 	{
 		int regCol = 1, yrCol = 4;
 		for (int i = 0; i < tables.size(); i++) {
@@ -157,8 +162,7 @@ public class csvProcessor
 	 * @param wkCol		column number for COV_EW
 	 * @param regVal	value of COV_REG
 	 */
-	private static void getCSV_month(ArrayList<ArrayList<String[]>> tables,
-									 String[] hpDir, String[] regDir, int wkCol, int regVal)
+	private static void getCSV_month(ArrayList<ArrayList<String[]>> tables, String[] hpDir, String[] regDir, int wkCol, int regVal)
 	{
 		// define each month of each year
 		int[][] month20 = { {0, 4}, {5, 8}, {9, 12}, {13, 17}, {18, 21}, {22, 25},
@@ -206,8 +210,7 @@ public class csvProcessor
 	 * @param wkCol		column number for COV_EW
 	 * @param regVal	value of COV_REG
 	 */
-	private static void getCSV_quarter(ArrayList<ArrayList<String[]>> tables,
-									   String[] hpDir, String[] regDir, int wkCol, int regVal)
+	private static void getCSV_quarter(ArrayList<ArrayList<String[]>> tables, String[] hpDir, String[] regDir, int wkCol, int regVal)
 	{
 		// define each quarter of a year
 		int[][] quarter = { {1, 13}, {14, 26}, {27, 39}, {40, 52} };
@@ -241,12 +244,19 @@ public class csvProcessor
 	 * @param col	the column number for search, depends on the chosen key
 	 * @param key	the key value for search (i.e. which year)
 	 */
-	private static void splitCSV_year(ArrayList<String[]> table, int col, int key)
+	private static void splitCSV(ArrayList<String[]> table, int col, int key)
 	{
-		String name = "outputs/year_" + key + ".csv";
+		String[] regions = {"Atlantic", "Quebec", "Ontario + Nunavut", "Prairies", "British Columbia + Yukon"};
+		String file = "";
+
+		if (col == 1) {	// COV_REG
+			file = "outputs/split_by_region/" + regions[key - 1] + ".csv";
+		} else if (col == 4) {	// COV_EY
+			file = "outputs/split_by_year/year_" + key + ".csv";
+		}
 		ArrayList<String[]> temp = getEntry(table, col, key);
 		if (temp.size() > 0) {
-			generateCSV(temp, name);
+			generateCSV(temp, file);
 		}
 	}
 
