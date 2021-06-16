@@ -183,8 +183,7 @@ public class csvProcessor
 			}
 
 			for (int j = 0; j < month.length; j++) {
-				String fileName = "20" + tables.get(i).get(j)[yrCol] + "_month_" + (j + 1)
-						+ " (week_" + month[j][0] + "-" + month[j][1] + ").csv";
+				String fileName = "20" + tables.get(i).get(j)[yrCol] + "_month_" + (j + 1) + " (week_" + month[j][0] + "-" + month[j][1] + ").csv";
 				ArrayList<String[]> list = new ArrayList<>();
 				// merge entries in a same quarter
 				for (int k = month[j][0]; k <= month[j][1]; k++) {
@@ -219,8 +218,7 @@ public class csvProcessor
 		for (int i = 0; i < tables.size(); i++) {
 			String fileDir = "outputs/" + hpDir[i] + regDir[regVal] + "quarterly/";
 			for (int j = 0; j < quarter.length; j++) {
-				String fileName = "20" + tables.get(i).get(j)[yrCol] + "_quarter_" + (j + 1)
-						+ " (week_" + quarter[j][0] + "-" + quarter[j][1] + ").csv";
+				String fileName = "20" + tables.get(i).get(j)[yrCol] + "_quarter_" + (j + 1) + " (week_" + quarter[j][0] + "-" + quarter[j][1] + ").csv";
 				ArrayList<String[]> list = new ArrayList<>();
 				// merge entries in a same quarter
 				for (int k = quarter[j][0]; k <= quarter[j][1]; k++) {
