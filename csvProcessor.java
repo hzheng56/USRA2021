@@ -77,7 +77,6 @@ public class csvProcessor
 	//|                                 METHODS                                |//
 	//|------------------------------------------------------------------------|//
 
-
 	/**
 	 * This method outputs .csv files by week, month, and quarter.
 	 * @param tables	the ArrayLists that need to be passed in
@@ -106,7 +105,7 @@ public class csvProcessor
 	 */
 	private static void getCSV_death(ArrayList<ArrayList<String[]>> tables, String[] hpDir, String[] regDir, int dthCol, int regVal)
 	{
-		String[] dth_status_names = {"_death_", "_survival_"};
+		String[] dth_status_names = {"_death", "_survival"};
 
 		int regCol = 1, yrCol = 4;
 		for (int i = 0; i < tables.size(); i++) {
@@ -337,6 +336,7 @@ public class csvProcessor
 				while ((line = br.readLine()) != null) {
 					rows.add(line.split(","));
 				}
+				br.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
