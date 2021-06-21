@@ -57,7 +57,8 @@
 	Bye
 	```
 ### 7. 注意事项：
-- `schema`的创建需要通过IDE进行（因为我懒得写了）。
-- `db_inputs`和`db_outputs`两个文件夹必须在数据库所在硬盘上创建，从而保证MySQL有权限进行访问。
+- 设置`serverTimezone`的属性为`CST`.
+- 创建`schema`需要通过IDE进行（因为我懒得写了）。
+- 两个文件夹`db_inputs`和`db_outputs`必须在数据库所在硬盘上创建，从而保证MySQL有权限进行访问。
 
 
