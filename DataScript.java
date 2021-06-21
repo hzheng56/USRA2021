@@ -84,7 +84,7 @@ public class DataScript
 	/* Count the number of entries */
 	void queryCount(String... clause)
 	{
-		String sql;
+		String sql = null;
 		try {
 			Statement stmt = conn.createStatement();
 			if (clause.length == 1) {
@@ -99,12 +99,14 @@ public class DataScript
 				col = rs.getInt(1);
 			}
 
-			// print summary
+			// print summary and delete this table
 			if (clause.length == 1) {
 				System.out.println("#entries in table " + clause[0] + " is:\t"+ col);
 			} else {
-				System.out.println("#entries that " + clause[1] + " in table " + clause[0] + " is:\t"+ col);
+				System.out.println("#entries that attribute " + clause[1] + " in table " + clause[0] + " is:\t"+ col);
 			}
+//			sql = "DROP TABLE IF EXISTS " + clause[0];
+//			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

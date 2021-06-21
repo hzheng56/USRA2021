@@ -1,50 +1,101 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class DataAuditor
 {
-	private static final int[] YEARS = {20, 21, 99};
-	private static final int[] REGIONS = {1, 2, 3, 4, 5};
-	private static final int[] HP_STATUS = {1, 2, 3, 9};
-	private static final int[] TREAT_OUTCOMES = {1, 2, 9};
-	private static final int[] AGE_GROUPS = {1, 2, 3, 4, 5, 6, 7, 8, 99};
-	private static final int[] GENDERS = {1, 2, 9};
-	private static final int[] WEEKS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-			15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,
-			35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 99};
-
+//	private static final int[] YEARS = {20, 21, 99};
+//	private static final int[] REGIONS = {1, 2, 3, 4, 5};
+//	private static final int[] HP_STATUS = {1, 2, 3, 9};
+//	private static final int[] TREAT_OUTCOMES = {1, 2, 9};
+//	private static final int[] AGE_GROUPS = {1, 2, 3, 4, 5, 6, 7, 8, 99};
+//	private static final int[] GENDERS = {1, 2, 9};
+	private static final int WEEKS = 53;
+	private static final String[] YEARS = {"yr20", "yr21"};
+	private static final String[] REGIONS = {"AC", "QC", "ON", "PS", "BY"};
+	private static final String[] HP_STATUS = {"icuY", "icuN", "hpN"};
+	private static final String[] TREAT_OUTCOMES = {"dth", "rec"};
+	private static final String[] AGE_GROUPS = {"0-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"};
+	private static final String[] GENDERS = {"male", "female"};
 
 	/* Main method */
 	public static void main(String[] args)
 	{
 		String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/COVID19-eng-2021May11.csv";
-		String srcTable = "UPDATE_0621";
+		String srcTable = "Src0621";
 		DataScript app = new DataScript();
 		app.getConnection();
 		app.dropAllTables();
 		app.initialTable(srcTable);
 		app.importData(srcFile, srcTable);
 
-		// create tables from the src by year
-		String year20 = app.splitTable("Year_20", srcTable, "COV_EY = 20");
-		String year21 = app.splitTable("Year_21", srcTable, "COV_EY = 21");
+		// create tables from the src
+		String[] tablesReg = createTables(app, REGIONS, srcTable);
+//		String[] tableHps = createTables(app, HP_STATUS, srcTable);
+// 		String[] tableYr = createTables(app, YEARS, srcTable);
 
-		// create tables from the src by region
-		String[] tableNamesReg = {"Reg_AC", "Reg_QC", "Reg_ON", "Reg_PS", "Reg_BY"};
-		String[] tableRegions = new String[5];
-		for (int i = 0; i < REGIONS.length; i++) {
-			tableRegions[i] = app.splitTable(tableNamesReg[i], srcTable, "COV_REG = " + REGIONS[i]);
-//			app.printTable(tableRegions[i]);
+		// create nested tables
+		ArrayList<String[]> list1 = new ArrayList<>();
+		for (int i = 0; i < tablesReg.length; i++) {
+			list1.add(createTables(app, HP_STATUS, tablesReg[i]));
 		}
 
-		//
-		String str;
+		ArrayList<String[]> list2 = new ArrayList<>();
+		for (int i = 0; i < list1.size(); i++) {
+			for (int j = 0; j < list1.get(i).length; j++) {
+				list2.add(createTables(app, YEARS, list1.get(i)[j]));
+			}
+		}
 
+		// delete extra tables
+		for (int i = 0; i < tablesReg.length; i++) {
+			app.dropTable(tablesReg[i]);
+		}
+		for (int i = 0; i < list1.size(); i++) {
+			for (int j = 0; j < list1.get(i).length; j++) {
+				app.dropTable(list1.get(i)[j]);
+			}
+		}
 
+		System.out.println(Arrays.toString(list2.get(0)));
 
 		// query tables
-		app.queryCount("update_0621", "COV_HSP = 1");
-		app.queryCount("update_0621");
+//		for (int i = 0; i < tablesReg.length; i++) {
+//			app.queryCount(srcTable, "COV_REG = " + (i + 1));
+//		}
+//		System.out.println();
+//
+//		for (int i = 0; i < REGIONS.length; i++) {
+//			for (int j = 0; j < HP_STATUS.length; j++) {
+//				for (int k = 0; k < YEARS.length; k++) {
+//					app.queryCount(tablesReg[i], "COV_HSP = " + (j + 1) + " AND COV_EY = " + (k + 20));
+//				}
+//			}
+//			System.out.println();
+//		}
 
-//		// output tables
-		app.exportData(year20);
+	}
 
+	/* create tables */
+	public static String[] createTables(DataScript script, String[] names, String srcTable)
+	{
+		String clause = null;
+		String[] newTable = new String[names.length];
+		for (int i = 0; i < names.length; i++) {
+			if (names == YEARS) {
+				clause = "COV_EY = " + (i + 20);
+			} else if (names == REGIONS) {
+				clause = "COV_REG = " + (i + 1);
+			} else if (names == HP_STATUS) {
+				clause = "COV_HSP = " + (i + 1);
+			} else if (names == TREAT_OUTCOMES) {
+				clause = "COV_DTH = " + (i + 1);
+			} else if (names == AGE_GROUPS) {
+				clause = "COV_AGR = " + (i + 1);
+			} else if (names == GENDERS) {
+				clause = "COV_GDR = " + (i + 1);
+			}
+			newTable[i] = script.splitTable(srcTable + "_" + names[i], srcTable, clause);
+		}
+		return newTable;
 	}
 }
