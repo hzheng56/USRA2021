@@ -36,14 +36,13 @@ public class DataCube
 		readCSV(srcPath + srcName);
 
 		int[][][][][][][] cube = new int[YEARS][WEEKS][REGIONS][HP_STATUS][TREAT_OUTCOMES][AGE_GROUPS][GENDERS];
-
 		for (int i = 0; i < YEARS; i++) {
-			for (int j = 0; j <= WEEKS; j++) {
-				for (int k = 1; k <= REGIONS; k++) {
-					for (int m = 1; m <= HP_STATUS; m++) {
-						for (int n = 1; n <= TREAT_OUTCOMES; n++) {
-							for (int p = 1; p <= AGE_GROUPS; p++) {
-								for (int q = 1; 1 <= GENDERS; q++) {
+			for (int j = 0; j < WEEKS; j++) {
+				for (int k = 0; k < REGIONS; k++) {
+					for (int m = 0; m < HP_STATUS; m++) {
+						for (int n = 0; n < TREAT_OUTCOMES; n++) {
+							for (int p = 0; p < AGE_GROUPS; p++) {
+								for (int q = 0; q < GENDERS; q++) {
 									cube[i][j][k][m][n][p][q] = 0;
 								}
 							}
@@ -52,14 +51,9 @@ public class DataCube
 				}
 			}
 		}
-
-		int[] a = new int[3];
-		for (int i = 0; i < 3; i++) {
-			a[i] = 0;
-		}
+		System.out.println(cube[0][0][0][0][0][0][0]);
 
 	}
-
 
 
 	public ArrayList<String[]> getEntry(ArrayList<String[]> table, int col, int key)
@@ -96,4 +90,43 @@ public class DataCube
 			e.printStackTrace();
 		}
 	}
+}
+
+class DataEntry
+{
+	private String year;
+	private String week;
+	private String region;
+	private String hp_status;
+	private String treat_outcome;
+	private String age;
+	private String gender;
+
+	private int cov_ey = 4;
+	private int cov_ew = 2;
+	private int cov_reg = 1;
+	private int cov_icu = 11;
+	private int cov_dth = 15;
+	private int cov_agr = 6;
+	private int cov_gdr = 5;
+
+	public DataEntry(String[] entry)
+	{
+		year = entry[cov_ey];
+		week = entry[cov_ew];
+		region = entry[cov_reg];
+		hp_status = entry[cov_icu];
+		treat_outcome = entry[cov_dth];
+		age = entry[cov_agr];
+		gender = entry[cov_gdr];
+	}
+
+	// getters
+	public String getYear() { return year; }
+	public String getWeek() { return week; }
+	public String getRegion() { return region; }
+	public String getHpStatus() { return hp_status; }
+	public String getTreatOutcome() { return treat_outcome; }
+	public String getAge() { return age; }
+	public String getGender() { return gender; }
 }
