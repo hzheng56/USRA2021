@@ -13,7 +13,7 @@ public class DataScript
 	private final String dbmsName = "proj_cov19";
 
 	/* Initialize database connection */
-	public void getConnection()
+	void getConnection()
 	{
 		String username = "root";
 		String password = "123123123";
@@ -37,7 +37,7 @@ public class DataScript
 	}
 
 	/* Initialize table columns */
-	public void initialTable(String srcTable)
+	void initialTable(String srcTable)
 	{
 		try {
 			Statement stmt = conn.createStatement();
@@ -55,7 +55,7 @@ public class DataScript
 	}
 
 	/* Import file from local drive to database */
-	public void importData(String srcFile, String srcTable)
+	void importData(String srcFile, String srcTable)
 	{
 		try {
 			Statement stmt = conn.createStatement();
@@ -68,7 +68,7 @@ public class DataScript
 	}
 
 	/* Create new table from a source table */
-	public String splitTable(String newTable, String oldTable, String where)
+	String splitTable(String newTable, String oldTable, String where)
 	{
 		try {
 			Statement stmt = conn.createStatement();
@@ -82,7 +82,7 @@ public class DataScript
 	}
 
 	/* Count the number of entries */
-	public void queryCount(String... clause)
+	void queryCount(String... clause)
 	{
 		String sql;
 		try {
@@ -111,7 +111,7 @@ public class DataScript
 	}
 
 	/* Output a table to the local drive */
-	public void exportData(String table)
+	void exportData(String table)
 	{
 		try {
 			String filename = "db_outputs/" + table + ".csv";
@@ -155,7 +155,7 @@ public class DataScript
 	}
 
 	/* Remove all tables of a schema */
-	public void dropAllTables()
+	void dropAllTables()
 	{
 		try {
 			Statement stmt = conn.createStatement();
@@ -176,7 +176,7 @@ public class DataScript
 	}
 
 	/* Remove a specific table */
-	public void dropTable(String table)
+	void dropTable(String table)
 	{
 		try {
 			Statement stmt = conn.createStatement();
@@ -188,7 +188,7 @@ public class DataScript
 	}
 
 	/* Print a table to the console */
-	public void printTable(String table)
+	void printTable(String table)
 	{
 //		int count = 0;
 		try {
@@ -222,7 +222,7 @@ public class DataScript
 	}
 
 	/* close database connection */
-	public void shutdown(Connection conn)
+	void shutdown(Connection conn)
 	{
 		if (conn != null) {
 			try {
