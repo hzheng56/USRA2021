@@ -1,82 +1,92 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class DataAuditor
 {
-//	private static final int[] YEARS = {20, 21, 99};
-//	private static final int[] REGIONS = {1, 2, 3, 4, 5};
-//	private static final int[] HP_STATUS = {1, 2, 3, 9};
-//	private static final int[] TREAT_OUTCOMES = {1, 2, 9};
-//	private static final int[] AGE_GROUPS = {1, 2, 3, 4, 5, 6, 7, 8, 99};
-//	private static final int[] GENDERS = {1, 2, 9};
-	private static final int WEEKS = 53;
-	private static final String[] YEARS = {"yr20", "yr21"};
+	private static final int WEEKS = 53;	// 0-52, 99
+	private static final String[] YEARS = {"yr20", "yr21"};	// +99
 	private static final String[] REGIONS = {"AC", "QC", "ON", "PS", "BY"};
-	private static final String[] HP_STATUS = {"icuY", "icuN", "hpN"};
-	private static final String[] TREAT_OUTCOMES = {"dth", "rec"};
-	private static final String[] AGE_GROUPS = {"0-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"};
-	private static final String[] GENDERS = {"male", "female"};
+	private static final String[] HP_STATUS = {"icuY", "icuN", "hpN"};	// +9
+	private static final String[] TREAT_OUTCOMES = {"dth", "rec"};	// +9
+	private static final String[] AGE_GROUPS = {"0-19", "20-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"};	// +99
+	private static final String[] GENDERS = {"male", "female"};	// +9
 
 	/* Main method */
 	public static void main(String[] args)
 	{
-		String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/COVID19-eng-2021May11.csv";
-		String srcTable = "Src0621";
-		DataScript app = new DataScript();
+		String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/COVID19-eng-2021Jun08.csv";
+		String srcTable = "2021Jun08";
+		DataController app = new DataController();
 		app.getConnection();
-		app.dropAllTables();
-		app.initialTable(srcTable);
-		app.importData(srcFile, srcTable);
 
-		// create tables from the src
-		String[] tablesReg = createTables(app, REGIONS, srcTable);
-//		String[] tableHps = createTables(app, HP_STATUS, srcTable);
-// 		String[] tableYr = createTables(app, YEARS, srcTable);
+		/* >>>No need to run again if not change srcFile<<< */
+//		app.dropAllTables();
+//		app.initialTable(srcTable);
+//		app.importTable(srcFile, srcTable);
 
-		// create nested tables
+		/* Remove entries that have unknown attributes */
+
+
+		/* Create tables from the src */
+		String[] tablesReg = createTables(app, srcTable, REGIONS);
+//		String[] tableHps = createTables(app, srcTable, HP_STATUS);
+		String[] tableYr = createTables(app, srcTable, YEARS);
+
+		/* Create tables for all 5 regions and 3 years */
+		for (String table : tablesReg) {
+			app.exportTable(table);
+		}
+		for (String table : tableYr) {
+			app.exportTable(table);
+		}
+		String yr99 = app.splitTable(srcTable + "_yr99", srcTable, "COV_EY = 99");
+		app.exportTable(yr99);
+
+		/* Create nested tables */
 		ArrayList<String[]> list1 = new ArrayList<>();
-		for (int i = 0; i < tablesReg.length; i++) {
-			list1.add(createTables(app, HP_STATUS, tablesReg[i]));
-		}
-
 		ArrayList<String[]> list2 = new ArrayList<>();
-		for (int i = 0; i < list1.size(); i++) {
-			for (int j = 0; j < list1.get(i).length; j++) {
-				list2.add(createTables(app, YEARS, list1.get(i)[j]));
+		ArrayList<String> list3 = new ArrayList<>();
+
+		// create "srcTable-regions-hp_status.csv"
+		for (String table : tablesReg) {
+			list1.add(createTables(app, table, HP_STATUS));
+		}
+
+		// create "srcTable-regions-hp_status-treat_outcomes.csv"
+		for (String[] tables : list1) {
+			for (String table : tables) {
+				list2.add(createTables(app, table, TREAT_OUTCOMES));
 			}
 		}
 
-		// delete extra tables
-		for (int i = 0; i < tablesReg.length; i++) {
-			app.dropTable(tablesReg[i]);
-		}
-		for (int i = 0; i < list1.size(); i++) {
-			for (int j = 0; j < list1.get(i).length; j++) {
-				app.dropTable(list1.get(i)[j]);
-			}
+		// drop "srcTable-regions-hp_status-rec.csv"
+		for (String[] tables : list2) {
+			app.dropTable(tables[1]);
+			list3.add(app.queryAggregate(tables[0], "COV_GDR,COV_AGR"));
 		}
 
+		/* Generate and export the summary */
+		for (String table : list3) {
+			app.exportTable(table);
+			app.dropTable(table);
+		}
+
+		/* Shutdown */
+		app.shutdown();
+
+		/*
+		list2.size() = 30
+		list2.get(0) = [Src0621_AC_icuY_yr20, Src0621_AC_icuY_yr21]
 		System.out.println(Arrays.toString(list2.get(0)));
+		*/
 
-		// query tables
-//		for (int i = 0; i < tablesReg.length; i++) {
-//			app.queryCount(srcTable, "COV_REG = " + (i + 1));
-//		}
-//		System.out.println();
-//
-//		for (int i = 0; i < REGIONS.length; i++) {
-//			for (int j = 0; j < HP_STATUS.length; j++) {
-//				for (int k = 0; k < YEARS.length; k++) {
-//					app.queryCount(tablesReg[i], "COV_HSP = " + (j + 1) + " AND COV_EY = " + (k + 20));
-//				}
-//			}
-//			System.out.println();
-//		}
-
+		/*
+		list1.size() = 5
+		list1.get(0) = [Src0621_AC_icuY, Src0621_AC_icuN, Src0621_AC_hpN]
+		*/
 	}
 
 	/* create tables */
-	public static String[] createTables(DataScript script, String[] names, String srcTable)
+	public static String[] createTables(DataController app, String srcTable, String[] names)
 	{
 		String clause = null;
 		String[] newTable = new String[names.length];
@@ -94,7 +104,7 @@ public class DataAuditor
 			} else if (names == GENDERS) {
 				clause = "COV_GDR = " + (i + 1);
 			}
-			newTable[i] = script.splitTable(srcTable + "_" + names[i], srcTable, clause);
+			newTable[i] = app.splitTable(srcTable + "_" + names[i], srcTable, clause);
 		}
 		return newTable;
 	}
