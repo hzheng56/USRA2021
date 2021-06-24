@@ -19,12 +19,9 @@ public class DataAuditor
 		app.getConnection();
 
 		/* >>>No need to run again if not change srcFile<<< */
-//		app.dropAllTables();
-//		app.initialTable(srcTable);
-//		app.importTable(srcFile, srcTable);
-
-		/* Remove entries that have unknown attributes */
-
+		app.dropAllTables();
+		app.initialTable(srcTable);
+		app.importTable(srcFile, srcTable);
 
 		/* Create tables from the src */
 		String[] tablesReg = createTables(app, srcTable, REGIONS);
@@ -45,44 +42,33 @@ public class DataAuditor
 		ArrayList<String[]> list1 = new ArrayList<>();
 		ArrayList<String[]> list2 = new ArrayList<>();
 		ArrayList<String> list3 = new ArrayList<>();
-
 		// create "srcTable-regions-hp_status.csv"
 		for (String table : tablesReg) {
 			list1.add(createTables(app, table, HP_STATUS));
 		}
-
 		// create "srcTable-regions-hp_status-treat_outcomes.csv"
 		for (String[] tables : list1) {
 			for (String table : tables) {
 				list2.add(createTables(app, table, TREAT_OUTCOMES));
 			}
 		}
-
 		// drop "srcTable-regions-hp_status-rec.csv"
 		for (String[] tables : list2) {
 			app.dropTable(tables[1]);
-			list3.add(app.queryAggregate(tables[0], "COV_GDR,COV_AGR"));
+			list3.add(app.queryAggregate(tables[0], "COV_GDR, COV_AGR"));
 		}
 
 		/* Generate and export the summary */
 		for (String table : list3) {
+			app.deleteRows(table, "COV_AGR = 99 OR COV_GDR = 9");
 			app.exportTable(table);
-			app.dropTable(table);
+			app.printInfo("top1", table);
+			app.printInfo("top2", table);
+//			app.dropTable(table);
 		}
 
 		/* Shutdown */
 		app.shutdown();
-
-		/*
-		list2.size() = 30
-		list2.get(0) = [Src0621_AC_icuY_yr20, Src0621_AC_icuY_yr21]
-		System.out.println(Arrays.toString(list2.get(0)));
-		*/
-
-		/*
-		list1.size() = 5
-		list1.get(0) = [Src0621_AC_icuY, Src0621_AC_icuN, Src0621_AC_hpN]
-		*/
 	}
 
 	/* create tables */
@@ -109,3 +95,13 @@ public class DataAuditor
 		return newTable;
 	}
 }
+		/*
+		list2.size() = 30
+		list2.get(0) = [Src0621_AC_icuY_yr20, Src0621_AC_icuY_yr21]
+		System.out.println(Arrays.toString(list2.get(0)));
+		*/
+
+		/*
+		list1.size() = 5
+		list1.get(0) = [Src0621_AC_icuY, Src0621_AC_icuN, Src0621_AC_hpN]
+		*/

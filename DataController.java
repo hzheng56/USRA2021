@@ -87,8 +87,9 @@ public class DataController
 		String newTable = "summary_" + oldTable;
 		try {
 			Statement stmt = conn.createStatement();
-			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT " + clause +
-					", COUNT(*) FROM " + oldTable + " GROUP BY " + clause + ")";
+			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT " +
+					clause + ", COUNT(*) FROM " + oldTable + " GROUP BY " +
+					clause + " ORDER BY " + clause + ")";
 			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -96,29 +97,13 @@ public class DataController
 		return newTable;
 	}
 
-	/* Count the number of entries */
-	void countRows(String... clause)
+	/* Delete certain rows */
+	void deleteRows(String table, String clause)
 	{
-		String sql = null;
-		int numRows = 0;
 		try {
 			Statement stmt = conn.createStatement();
-			if (clause.length == 1) {
-				sql = "SELECT COUNT(*) FROM " + clause[0];
-			} else if (clause.length == 2) {
-				sql = "SELECT COUNT(*) FROM " + clause[0] + " WHERE " + clause[1];
-			}
-			ResultSet rs = stmt.executeQuery(sql);
-			while (rs.next()) {
-				numRows = rs.getInt(1);
-			}
-
-			// print summary and delete this table
-			if (clause.length == 1) {
-				System.out.println(clause[0] + "," + numRows);
-			} else {
-				System.out.println(clause[0] + "," + clause[1] + "," + numRows);
-			}
+			String sql = "DELETE FROM " + table + " WHERE " + clause;
+			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -168,6 +153,97 @@ public class DataController
 		}
 	}
 
+	/* Print specific information of a table */
+	void printInfo(String... clause)
+	{
+		String sql = null;
+		int numRows = 0;
+		try {
+			Statement stmt = conn.createStatement();
+			switch (clause[0]) {
+				case "all":
+					sql = "SELECT COUNT(*) FROM " + clause[1];
+					break;
+				case "where":
+					sql = "SELECT COUNT(*) FROM " + clause[1] + " WHERE " + clause[2];
+					break;
+				case "top1":
+					sql = "SELECT MAX(" + clause[1] + ".`COUNT(*)`) FROM " + clause[1];
+					break;
+				case "top2":
+					sql = "SELECT MAX(" + clause[1] + ".`COUNT(*)`) FROM " + clause[1] +
+							" WHERE " + clause[1] + ".`COUNT(*)` < (" + "SELECT MAX(" +
+							clause[1] + ".`COUNT(*)`) FROM " + clause[1] + ")";
+					break;
+			}
+
+			ResultSet rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				numRows = rs.getInt(1);
+			}
+
+			// print summary
+			switch (clause[0]) {
+				case "all":
+					System.out.println(clause[1] + "\t" + numRows);
+					break;
+				case "where":
+					System.out.println(clause[1] + "\t" + clause[2] + "\t" + numRows);
+					break;
+				case "top1":
+				case "top2":
+					System.out.println(clause[1] + "\t" + clause[0] + "\t" + numRows);
+					printTable(clause[1], clause[1] + ".`COUNT(*)` = " + numRows);
+					break;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/* Print a table to the console */
+	void printTable(String... clause)
+	{
+		String sql;
+		try {
+			if (clause.length == 1) {
+				sql = "SELECT * FROM " + clause[0];
+			} else {
+				sql = "SELECT * FROM " + clause[0] + " WHERE " + clause[1];
+			}
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int numOfCols = rsmd.getColumnCount();	// value is 17 in this case
+
+			// print the header
+			for (int i = 1; i <= numOfCols; i++) {
+				System.out.print(rsmd.getColumnName(i));
+				if (i < numOfCols) {
+					System.out.print("\t");
+				}
+			}
+			System.out.println();
+
+			// print all entries that meet the requirement
+			while (rs.next()) {
+				for (int i = 1; i <= numOfCols; i++) {
+					if (i > 1) {
+						System.out.print("\t");
+					}
+					System.out.print(rs.getInt(i));
+//					if (i < numOfCols) {
+//						System.out.print(",");
+//					}
+				}
+				System.out.println();
+			}
+			System.out.println();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/* Remove all tables of a schema */
 	void dropAllTables()
 	{
@@ -196,40 +272,6 @@ public class DataController
 			Statement stmt = conn.createStatement();
 			String sql = "DROP TABLE IF EXISTS " + table;
 			stmt.executeUpdate(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/* Print a table to the console */
-	void printTable(String table)
-	{
-//		int count = 0;
-		try {
-			String sql = "SELECT * FROM " + table;
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int numOfCols = rsmd.getColumnCount();	// value is 17
-
-			//打印第一行
-			for (int i = 1; i <= numOfCols; i++) {
-				System.out.print(rsmd.getColumnName(i) + "\t");
-			}
-			System.out.println();
-
-			//打印所有符合要求的entry
-			while (rs.next()) {
-				for (int i = 1; i <= numOfCols; i++) {
-					if (i > 1) {
-						System.out.print("\t");
-					}
-					System.out.print(rs.getInt(i) + "\t");
-				}
-//				count++;
-				System.out.println();
-			}
-//			System.out.println("Total number of entries is: " + count);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
