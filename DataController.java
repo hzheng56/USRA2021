@@ -82,13 +82,13 @@ public class DataController
 	}
 
 	/* Create summary table by aggregate function */
-	String queryAggregate(String oldTable, String clause)
+	String queryAggregate(String srcTable, String clause)
 	{
-		String newTable = "summary_" + oldTable;
+		String newTable = "summary_" + srcTable;
 		try {
 			Statement stmt = conn.createStatement();
 			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT " +
-					clause + ", COUNT(*) FROM " + oldTable + " GROUP BY " +
+					clause + ", COUNT(*) FROM " + srcTable + " GROUP BY " +
 					clause + " ORDER BY " + clause + ")";
 			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
@@ -232,9 +232,6 @@ public class DataController
 						System.out.print("\t");
 					}
 					System.out.print(rs.getInt(i));
-//					if (i < numOfCols) {
-//						System.out.print(",");
-//					}
 				}
 				System.out.println();
 			}
@@ -290,19 +287,3 @@ public class DataController
 		}
 	}
 }
-
-//			//打印第一行
-//			for (int i = 1; i <= numOfCols; i++) {
-//				fw.append(rsmd.getColumnName(i)).append(",");
-//			}
-//			fw.append("\n");
-
-//			//打印所有符合要求的entry
-//			while (rs.next()) {
-//				for (int i = 1; i <= numOfCols; i++) {
-//					fw.append(rs.getString(i)).append(",");
-//				}
-//				fw.append("\n");
-//			}
-//			fw.flush();
-//			fw.close();

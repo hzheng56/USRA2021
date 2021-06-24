@@ -25,7 +25,6 @@ public class DataAuditor
 
 		/* Create tables from the src */
 		String[] tablesReg = createTables(app, srcTable, REGIONS);
-//		String[] tableHps = createTables(app, srcTable, HP_STATUS);
 		String[] tableYr = createTables(app, srcTable, YEARS);
 
 		/* Create tables for all 5 regions and 3 years */
