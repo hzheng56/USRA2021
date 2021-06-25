@@ -1,64 +1,60 @@
 # USRA2021
 
-## 数据库相关问题
+## Database Q&A
 
-### 1. 连接本地的数据库并进入命令行：
-- 在终端中输入`/usr/local/MySQL/bin/mysql -u root -p`, 其中`root`为数据库用户名。
+### 1. Connect to local database
+- Input `/usr/local/MySQL/bin/mysql -u root -p` in the Terminal, where `root` is the user name of database.
+- Input password of the database.
 
-### 2. 连接远程数据库并进入命令行：
-- 假设远程主机的IP为`23.106.134.88`，用户名为`root`,密码为`123`。
-- 在终端中输入`mysql -h 23.106.134.88 -u root -p 123`。
-- 查看本机IP，需要在终端输入`ifconfig en0`。
-	```
-	inet 23.106.134.88 netmask 0xffffff00 broadcast 192.168.0.255
-	```
+### 2. Connect to remote database
+- Suppose the IP of remote host is `23.106.134.88`, user name is `root`.
+- Input `mysql -h 23.106.134.88 -u root -p 123` in the Terminal.
+- Input password of the database.
 
-### 3. 修改数据库密码：
-- 假设数据库名字为`localhost`，用户名为`root`。
-- 在终端中输入`set password for root@localhost = password('123')`即将数据库密码设定为`123`。
+### 3. Change database password
+- Suppose the database name is `localhost`，user name is `root`.
+- Input `set password for root@localhost = password('123')` to set the database password to `123`.
 
-### 4. 建立并加载schema：
-- 直接在IntelliJ中的服务器（localhost）右键选择新建schema。
-- 在终端中输入`use <database name>`来启用数据库。
-	```
-	mysql> use proj_cov19
-	Database changed
-	```
+### 4. Create a schema
+- Just create a new schema through IntelliJ.
+- Input `use <database name>` in the Terminal to start the database.
+  ```
+  mysql> use proj_cov19
+  Database changed
+  ```
 
-### 5. 导入文件：
-- MySQL的`secure_file_priv`参数是用来限制`LOAD DATA`, `SELECT ... OUTFILE`, 以及 `LOAD_FILE()`传到哪个指定目录的。
+### 5. Import a file
+- The `secure_file_priv` parameter is used to constrain `LOAD DATA`, `SELECT ... OUTFILE`, and `LOAD_FILE()`传到哪个指定目录的。
 
-	- 若`secure_file_priv`的值为null，表示限制`mysqld`不允许导入或导出。
-	- `secure_file_priv`的值为/tmp/，表示限制`mysqld`的导入或导出只能发生在/tmp/目录下。
-	- `secure_file_priv`的值为空，表示不对`mysqld`的导入或导出做限制。<br><br>
+	- If `secure_file_priv` is valued null, it means disallow `mysqld` to perform import/export.
+	- If `secure_file_priv` is valued /tmp/, it means `mysqld` can only import/export files to /tmp/.
+	- If `secure_file_priv` is valued empty, it means allow `mysqld` to perform import/export without limits.<br><br>
 
-- 解决方案 (Mac/Linux): 在`my.cnf`文件里的`[mysqld]`内加入`secure_file_priv=''`即可。
-	- 注意：在代码中只接受导入/导出文件的绝对路径。
-	```
-	mysql> show variables like 'secure%';
-	+------------------+-------+
-	| Variable_name    | Value |
-	+------------------+-------+
-	| secure_file_priv |       |
-	+------------------+-------+
-	1 row in set (0.00 sec)
-	```
+- Solution (Mac/Linux): In `[mysqld]` of `my.cnf`, add `secure_file_priv=''`.
+	- Note: absolute path is required to import a file.
+  ```
+  mysql> show variables like 'secure%';
+  +------------------+-------+
+  | Variable_name    | Value |
+  +------------------+-------+
+  | secure_file_priv |       |
+  +------------------+-------+
+  1 row in set (0.00 sec)
+  ```
 
-- 关于配置文件`my.cnf`的位置: 通常位于`/etc`.
+- Location of `my.cnf` usually is at `/etc`.
 
-	- 打开终端输入`sudo fs_usage | grep my.cnf`，终端会进行全盘搜索。
-	- 如果路径`/usr/local/etc`中不存在此文件，则需要输入`sudo nano /etc/my.cnf`创建一个。
-	- 格式样板`mysql-log-rotate`位于`/usr/local/mysql/support-files/`。
+	- Input `sudo fs_usage | grep my.cnf` in the Terminal, the Terminal will search the location of `my.cnf`.
+	- If there is no `my.cnf` in the path `/usr/local/etc`, then input `sudo nano /etc/my.cnf` to create one.
+	- Sample file `mysql-log-rotate` locates at `/usr/local/mysql/support-files/`.
 
-### 6. 断开数据库：
-- 在终端中输入`quit`即可。
-	```
-	mysql> quit
-	Bye
-	```
-### 7. 注意事项：
-- 设置`serverTimezone`的属性为`CST`.
-- 创建`schema`需要通过IDE进行（因为我懒得写了）。
-- 两个文件夹`db_inputs`和`db_outputs`必须在数据库所在硬盘上创建，从而保证MySQL有权限进行访问。
-
+### 6. Shutdown database
+- Input `quit` in the Terminal while the connection is on.
+  ```
+  mysql> quit
+  Bye
+  ```
+### 7. NOTES
+- To connect to MySQL, must set a valid value for `serverTimezone` (i.e. `CST`).
+- The directories `db_inputs` and `db_outputs` must be created at the local drive in order to have complete authorization for MySQL to visit.
 
