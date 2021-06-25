@@ -31,7 +31,7 @@
 	- If `secure_file_priv` is valued empty, it means allow `mysqld` to perform import/export without limits.<br><br>
 
 - Solution (Mac/Linux): In `[mysqld]` of `my.cnf`, add `secure_file_priv=''`.
-	- Note: absolute path is required to import a file.
+	- Note: absolute path must be used to import a file.
   ```
   mysql> show variables like 'secure%';
   +------------------+-------+
