@@ -3,6 +3,9 @@ import java.sql.*;
 import java.util.*;
 
 /**
+ * Database controller class
+ * Author: Hao Zheng
+ *
  * Default settings:
  * username = root, password = 123123123,
  * server name = localhost, dbms name = proj_cov19
@@ -82,7 +85,7 @@ public class DataController
 	}
 
 	/* Create summary table by aggregate function */
-	String queryAggregate(String srcTable, String clause)
+	String createSummaryTable(String srcTable, String clause)
 	{
 		String newTable = "summary_" + srcTable;
 		try {

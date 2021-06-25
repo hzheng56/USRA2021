@@ -1,5 +1,9 @@
 import java.util.ArrayList;
 
+/**
+ * Database auditor class
+ * Author: Hao Zheng
+ */
 public class DataAuditor
 {
 	private static final int WEEKS = 53;	// 0-52, 99
@@ -38,8 +42,8 @@ public class DataAuditor
 		app.exportTable(yr99);
 
 		/* Create nested tables */
-		ArrayList<String[]> list1 = new ArrayList<>();
-		ArrayList<String[]> list2 = new ArrayList<>();
+		ArrayList<String[]> list1 = new ArrayList<>();	// size = 30
+		ArrayList<String[]> list2 = new ArrayList<>();	// size = 5
 		ArrayList<String> list3 = new ArrayList<>();
 		// create "srcTable-regions-hp_status.csv"
 		for (String table : tablesReg) {
@@ -51,10 +55,10 @@ public class DataAuditor
 				list2.add(createTables(app, table, TREAT_OUTCOMES));
 			}
 		}
-		// drop "srcTable-regions-hp_status-rec.csv"
+		// drop "srcTable-regions-hp_status-rec.csv", and create summary tables
 		for (String[] tables : list2) {
 			app.dropTable(tables[1]);
-			list3.add(app.queryAggregate(tables[0], "COV_GDR, COV_AGR"));
+			list3.add(app.createSummaryTable(tables[0], "COV_GDR, COV_AGR"));
 		}
 
 		/* Generate and export the summary */
@@ -95,12 +99,10 @@ public class DataAuditor
 	}
 }
 		/*
-		list2.size() = 30
 		list2.get(0) = [Src0621_AC_icuY_yr20, Src0621_AC_icuY_yr21]
 		System.out.println(Arrays.toString(list2.get(0)));
 		*/
 
 		/*
-		list1.size() = 5
 		list1.get(0) = [Src0621_AC_icuY, Src0621_AC_icuN, Src0621_AC_hpN]
 		*/
