@@ -3,16 +3,16 @@
 ## Database Q&A
 
 ### 1. Connect to local database
-- Input `/usr/local/MySQL/bin/mysql -u root -p` in the Terminal, where `root` is the user name of database.
+- Input `/usr/local/MySQL/bin/mysql -u root -p` in the Terminal, where `root` is the username of database.
 - Input password of the database.
 
 ### 2. Connect to remote database
-- Suppose the IP of remote host is `23.106.134.88`, user name is `root`.
+- Suppose the IP of remote host is `23.106.134.88`, username is `root`.
 - Input `mysql -h 23.106.134.88 -u root -p 123` in the Terminal.
 - Input password of the database.
 
 ### 3. Change database password
-- Suppose the database name is `localhost`，user name is `root`.
+- Suppose the database name is `localhost`，username is `root`.
 - Input `set password for root@localhost = password('123')` to set the database password to `123`.
 
 ### 4. Create a schema
@@ -24,7 +24,7 @@
   ```
 
 ### 5. Import a file
-- The `secure_file_priv` parameter is used to constrain `LOAD DATA`, `SELECT ... OUTFILE`, and `LOAD_FILE()`传到哪个指定目录的。
+- The `secure_file_priv` parameter is to constrain `LOAD DATA`, `SELECT ... OUTFILE`, and `LOAD_FILE()`.
 
 	- If `secure_file_priv` is valued null, it means disallow `mysqld` to perform import/export.
 	- If `secure_file_priv` is valued /tmp/, it means `mysqld` can only import/export files to /tmp/.
