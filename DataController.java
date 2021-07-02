@@ -7,13 +7,12 @@ import java.util.*;
  * Author: Hao Zheng
  *
  * Default settings:
- * username = root, password = 123123123,
- * server name = localhost, dbms name = proj_cov19
+ * username = root, password = 123123123, server name = localhost
  */
 public class DataController
 {
 	private Connection conn = null;
-	private final String dbmsName = "proj_cov19";
+	String dbmsName;
 
 	/* Initialize database connection */
 	void getConnection()
@@ -28,13 +27,24 @@ public class DataController
 		connectionProps.put("characterEncoding", "utf8");
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			conn = DriverManager.getConnection(serverUrl + dbmsName, connectionProps);
+			conn = DriverManager.getConnection(serverUrl, connectionProps);
 			System.out.println("DATABASE CONNECTED SUCCESSFULLY.\n");
-		} catch (ClassNotFoundException e) {
-			System.out.println(">>>ERROR: Class Not Found!<<<");
+		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
+		}
+	}
+
+	/* Setup a schema and use it */
+	void setupDBMS()
+	{
+		String sql;
+		try {
+			Statement stmt = conn.createStatement();
+			sql = "CREATE SCHEMA IF NOT EXISTS " + dbmsName;
+			stmt.executeUpdate(sql);
+			sql = "USE " + dbmsName;
+			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
-			System.out.println(">>>ERROR: Connection Failed!<<<");
 			e.printStackTrace();
 		}
 	}
@@ -71,13 +81,52 @@ public class DataController
 	}
 
 	/* Create new table from a source table */
-	String splitTable(String newTable, String oldTable, String clause)
+	String createTable(String srcTable, String tag, String clause)
 	{
+		String newTable = srcTable + tag;
+		dropTable(newTable); // drop the previously generated table
 		try {
 			Statement stmt = conn.createStatement();
-			String sql = "CREATE TABLE IF NOT EXISTS " + newTable +
-					" (SELECT * FROM " + oldTable + " WHERE " + clause + ")";
+			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT * FROM " + srcTable +
+					" WHERE " + clause + ")";
 			stmt.executeUpdate(sql);
+			if (isEmptyTable(newTable)) {
+				dropTable(newTable);
+				newTable = null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return newTable;
+	}
+
+	/* Create a list of tables */
+	String[] createTables(String srcTable, String[] names, String label)
+	{
+		String clause;
+		String[] newTables = new String[names.length];
+		for (int i = 0; i < names.length; i++) {
+			clause = label + " = " + (i + 1);
+			newTables[i] = createTable(srcTable, "_" + names[i], clause);
+		}
+		return newTables;
+	}
+
+	/* Split a table by attribute of week */
+	String splitByWeek(String srcTable, String tag, int[] names)
+	{
+		String newTable = srcTable + tag;
+		dropTable(newTable); // drop the previously generated table
+		try {
+			Statement stmt = conn.createStatement();
+			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT * FROM " + srcTable +
+					" WHERE proj_cov19." + srcTable + ".COV_EW BETWEEN " + names[0] + " AND " + names[1] +
+					" ORDER BY proj_cov19." + srcTable + ".COV_EW, proj_cov19." +  srcTable + ".COV_ID)";
+			stmt.executeUpdate(sql);
+			if (isEmptyTable(newTable)) {
+				dropTable(newTable);
+				newTable = null;
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -85,14 +134,14 @@ public class DataController
 	}
 
 	/* Create summary table by aggregate function */
-	String createSummaryTable(String srcTable, String clause)
+	String SummarizeTable(String srcTable, String label)
 	{
 		String newTable = "summary_" + srcTable;
+		dropTable(newTable); // drop the previously generated table
 		try {
 			Statement stmt = conn.createStatement();
-			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT " +
-					clause + ", COUNT(*) FROM " + srcTable + " GROUP BY " +
-					clause + " ORDER BY " + clause + ")";
+			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT " + label + ", COUNT(*) FROM " +
+					srcTable + " GROUP BY " + label + " ORDER BY " + label + ")";
 			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -112,47 +161,108 @@ public class DataController
 		}
 	}
 
-	/* Output a table to the local drive */
-	void exportTable(String table)
+	/* Check if a table is empty */
+	boolean isEmptyTable(String table)
 	{
 		try {
-			String filename = "db_outputs/" + table + ".csv";
-			String sql = "SELECT * FROM " + table;
 			Statement stmt = conn.createStatement();
+			String sql = "SELECT COUNT(*) FROM " + table;
 			ResultSet rs = stmt.executeQuery(sql);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int numCols = rsmd.getColumnCount();	// value is 17
-
-			File file = new File(filename);
-			File fileParent = file.getParentFile();
-			// generate directories
-			if (!fileParent.exists()) {
-				fileParent.mkdirs();
+			int numRows = 0;
+			while (rs.next()) {
+				numRows = rs.getInt(1);
 			}
+			if (numRows == 0) {
+				return true;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
+	/* Remove a specific table */
+	void dropTable(String table)
+	{
+		try {
+			Statement stmt = conn.createStatement();
+			String sql = "DROP TABLE IF EXISTS " + table;
+			stmt.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/* Remove all tables of a schema */
+	void dropAllTables()
+	{
+		try {
+			Statement stmt = conn.createStatement();
+			String sql = "SELECT CONCAT('DROP TABLE IF EXISTS `', TABLE_NAME, '`;')" +
+					" FROM information_schema.tables WHERE TABLE_SCHEMA = '" + dbmsName + "'";
+			stmt.execute(sql);
+			ResultSet rs = stmt.executeQuery(sql);
+			ArrayList<String> list = new ArrayList<>();
+			while (rs.next()) {
+				list.add(rs.getString(1));
+			}
+			for (String str : list) {
+				stmt.executeUpdate(str);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/* Export a table to the local drive */
+	void exportTable(String table, String path)
+	{
+		if (table != null) {
 			try {
-				BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
+				String filename = "db_outputs/" + path + table + ".csv";
+				String sql = "SELECT * FROM " + table;
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(sql);
+				ResultSetMetaData rsmd = rs.getMetaData();
+				int numCols = rsmd.getColumnCount();    // value is 17
 
-				// write column name
-				for (int i = 1; i <= numCols; i++) {
-					bw.write(rsmd.getColumnName(i) + ",");
+				// generate directories
+				File file = new File(filename);
+				File fileParent = file.getParentFile();
+				if (!fileParent.exists()) {
+					fileParent.mkdirs();
 				}
-				bw.newLine();
 
-				// write data
-				while (rs.next()) {
+				try {
+					BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
 					for (int i = 1; i <= numCols; i++) {
-						bw.write(rs.getString(i) + ",");
+						bw.write(rsmd.getColumnName(i) + ",");    // write column name
 					}
 					bw.newLine();
+
+					// write data
+					while (rs.next()) {
+						for (int i = 1; i <= numCols; i++) {
+							bw.write(rs.getString(i) + ",");
+						}
+						bw.newLine();
+					}
+					bw.flush();
+					bw.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				bw.flush();
-				bw.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		}
+	}
+
+	/* Export a list of tables */
+	void exportTables(String[] tables, String path)
+	{
+		for (String table : tables) {
+			exportTable(table, path);
 		}
 	}
 
@@ -167,7 +277,7 @@ public class DataController
 				case "all":
 					sql = "SELECT COUNT(*) FROM " + clause[1];
 					break;
-				case "where":
+				case "one":
 					sql = "SELECT COUNT(*) FROM " + clause[1] + " WHERE " + clause[2];
 					break;
 				case "top1":
@@ -190,7 +300,7 @@ public class DataController
 				case "all":
 					System.out.println(clause[1] + "\t" + numRows);
 					break;
-				case "where":
+				case "one":
 					System.out.println(clause[1] + "\t" + clause[2] + "\t" + numRows);
 					break;
 				case "top1":
@@ -217,12 +327,12 @@ public class DataController
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
 			ResultSetMetaData rsmd = rs.getMetaData();
-			int numOfCols = rsmd.getColumnCount();	// value is 17 in this case
+			int numCols = rsmd.getColumnCount();	// value is 17 in this case
 
 			// print the header
-			for (int i = 1; i <= numOfCols; i++) {
+			for (int i = 1; i <= numCols; i++) {
 				System.out.print(rsmd.getColumnName(i));
-				if (i < numOfCols) {
+				if (i < numCols) {
 					System.out.print("\t");
 				}
 			}
@@ -230,7 +340,7 @@ public class DataController
 
 			// print all entries that meet the requirement
 			while (rs.next()) {
-				for (int i = 1; i <= numOfCols; i++) {
+				for (int i = 1; i <= numCols; i++) {
 					if (i > 1) {
 						System.out.print("\t");
 					}
@@ -239,39 +349,6 @@ public class DataController
 				System.out.println();
 			}
 			System.out.println();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/* Remove all tables of a schema */
-	void dropAllTables()
-	{
-		try {
-			Statement stmt = conn.createStatement();
-			String sql = "SELECT CONCAT('DROP TABLE IF EXISTS `', table_name, '`;')" +
-					" FROM information_schema.tables WHERE table_schema = '" + dbmsName + "'";
-			stmt.execute(sql);
-			ResultSet rs = stmt.executeQuery(sql);
-			ArrayList<String> list = new ArrayList<>();
-			while (rs.next()) {
-				list.add(rs.getString(1));
-			}
-			for (String str : list) {
-				stmt.executeUpdate(str);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/* Remove a specific table */
-	void dropTable(String table)
-	{
-		try {
-			Statement stmt = conn.createStatement();
-			String sql = "DROP TABLE IF EXISTS " + table;
-			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

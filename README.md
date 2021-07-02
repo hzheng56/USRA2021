@@ -15,11 +15,11 @@
 - Suppose the database name is `localhost`，username is `root`.
 - Input `set password for root@localhost = password('123')` to set the database password to `123`.
 
-### 4. Create a schema
-- Just create a new schema through IntelliJ.
-- Input `use <database name>` in the Terminal to start the database.
+### 4. Choose a schema
+- If there exists more than 1 schema, input `use <schema name>` in the Terminal to choose a schema.
   ```
   mysql> use proj_cov19
+  
   Database changed
   ```
 

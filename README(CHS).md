@@ -17,11 +17,11 @@
 - 假设数据库名字为`localhost`，用户名为`root`。
 - 在终端中输入`set password for root@localhost = password('123')`即将数据库密码设定为`123`。
 
-### 4. 建立并加载schema：
-- 直接在IntelliJ中的服务器（localhost）右键选择新建schema。
-- 在终端中输入`use <database name>`来启用数据库。
+### 4. 选择schema：
+- 存在多个schema时，在终端中输入`use <schema name>`来选择要使用的数据库。
   ```
   mysql> use proj_cov19
+  
   Database changed
   ```
 
@@ -58,6 +58,5 @@
   ```
 ### 7. 注意事项：
 - 设置`serverTimezone`的属性为`CST`.
-- 创建`schema`需要通过IDE进行（因为我懒得写了）。
 - 两个文件夹`db_inputs`和`db_outputs`必须在数据库所在硬盘上创建，从而保证MySQL有权限进行访问。
 

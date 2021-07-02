@@ -8,12 +8,11 @@ import java.util.*;
  * This code is used for processing COVID-19 metadata .csv file, including:
  * 1) Split the original files into multiple smaller sized files by year values then output them.
  * 2) Generate multiple files by hospitalization status and then regions for each week, month, and quarter.
- * 3) todo: calculate input data for statistic purposes.
  */
 public class CSVProcessor
 {
 	private static ArrayList<String[]> rows;	// store all data in an entire .csv file
-	private static final int HPSTATUS = 3;	// number of hospitalization status
+	private static final int HP_STATUS = 3;	// number of hospitalization status
 	private static final int REGIONS = 5;	// number of sub regions of Canada
 	private static final int WEEKS = 52;	// max value of COV_EW is 52 (except unknown)
 
@@ -21,10 +20,8 @@ public class CSVProcessor
 	public static void main(String[] args)
 	{
 		/* Initialize variables */
-		String srcPath = "update_2021-5-11/";	// may require changes
-		String srcName = "COVID19-eng.csv";
-//		String srcPath = "update_2021-6-16/";	// may require changes
-//		String srcName = "COVID19-eng 2021Jun08.csv";
+		String srcPath = "update_2021-6-16/";
+		String srcName = "COVID19-eng 2021Jun08.csv";
 
 		rows = new ArrayList<>();
 		int colRegion = 1;
@@ -33,30 +30,6 @@ public class CSVProcessor
 
 		/* Read file */
 		readCSV(srcPath + srcName);
-
-		/* select entries that have required COV_HSP values each year in Canada */
-		ArrayList<String[]> year20 = getEntry(rows, colYear, 20);
-		ArrayList<String[]> year21 = getEntry(rows, colYear, 21);
-
-		// hp_status_xx.get(0): entries in Canada that are hospitalized and in ICU
-		// hp_status_xx.get(1): entries in Canada that are hospitalized but not in ICU
-		// hp_status_xx.get(2): entries in Canada that are not hospitalized
-		// xx: year (i.e. 20 means year 2020)
-		ArrayList<ArrayList<String[]>> hp_status_20 = new ArrayList<>();
-		for (int i = 1; i <= HPSTATUS; i++) {
-			ArrayList<String[]> temp = getEntry(year20, colIcu, i);
-			hp_status_20.add(temp);
-		}
-
-		ArrayList<ArrayList<String[]>> hp_status_21 = new ArrayList<>();
-		for (int i = 1; i <= HPSTATUS; i++) {
-			ArrayList<String[]> temp = getEntry(year21, colIcu, i);
-			hp_status_21.add(temp);
-		}
-
-		// generate and output files
-		outputCSV(hp_status_20);
-		outputCSV(hp_status_21);
 
 		/* Split the original file by years, then output new files */
 		splitCSV(rows, colYear, 20);
@@ -68,10 +41,27 @@ public class CSVProcessor
 			splitCSV(rows, colRegion, i);
 		}
 
-		/* Statistic outputs */
-		//todo
-	}
+		/* select entries that have required COV_HSP values each year in Canada */
+		// hp_status_xx.get(0): entries in Canada that are hospitalized and in ICU
+		// hp_status_xx.get(1): entries in Canada that are hospitalized but not in ICU
+		// hp_status_xx.get(2): entries in Canada that are not hospitalized
+		// xx: year (i.e. 20 means year 2020)
+		ArrayList<String[]> year20 = getEntry(rows, colYear, 20);
+		ArrayList<ArrayList<String[]>> hp_status_20 = new ArrayList<>();
+		for (int i = 1; i <= HP_STATUS; i++) {
+			ArrayList<String[]> temp = getEntry(year20, colIcu, i);
+			hp_status_20.add(temp);
+		}
+		outputCSV(hp_status_20);
 
+		ArrayList<String[]> year21 = getEntry(rows, colYear, 21);
+		ArrayList<ArrayList<String[]>> hp_status_21 = new ArrayList<>();
+		for (int i = 1; i <= HP_STATUS; i++) {
+			ArrayList<String[]> temp = getEntry(year21, colIcu, i);
+			hp_status_21.add(temp);
+		}
+		outputCSV(hp_status_21);
+	}
 
 	//|------------------------------------------------------------------------|//
 	//|                                 METHODS                                |//
