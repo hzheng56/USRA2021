@@ -119,9 +119,9 @@ public class DataController
 		dropTable(newTable); // drop the previously generated table
 		try {
 			Statement stmt = conn.createStatement();
-			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT * FROM " + srcTable +
-					" WHERE proj_cov19." + srcTable + ".COV_EW BETWEEN " + names[0] + " AND " + names[1] +
-					" ORDER BY proj_cov19." + srcTable + ".COV_EW, proj_cov19." +  srcTable + ".COV_ID)";
+			String sql = "CREATE TABLE IF NOT EXISTS " + newTable + " (SELECT * FROM " + srcTable + " WHERE " +
+					dbmsName + "." + srcTable + ".COV_EW BETWEEN " + names[0] + " AND " + names[1] + " ORDER BY " +
+					dbmsName + "." + srcTable + ".COV_EW, " + dbmsName + "." +  srcTable + ".COV_ID)";
 			stmt.executeUpdate(sql);
 			if (isEmptyTable(newTable)) {
 				dropTable(newTable);
