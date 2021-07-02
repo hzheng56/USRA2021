@@ -21,9 +21,9 @@ public class AuditorCov19
 	private static final String[] REGIONS = {"AC", "QC", "ON", "PS", "BY"};
 	private static final String[] HP_STATUS = {"icuY", "icuN", "hpN"};	// +9
 	private static final String[] GENDERS = {"male", "female"};	// +9
-	private static final String[] RESOLVED = {"rec", "recN"};	// +9
+	private static final String[] RESOLVED = {"recY", "recN"};	// +9
 	private static final String[] YEARS = {"yr20", "yr21"};	// +99
-	private static final String[] DEATH = {"dth", "dthN"};	// +9
+	private static final String[] DEATH = {"dthY", "dthN"};	// +9
 
 
 	/* Main method */
