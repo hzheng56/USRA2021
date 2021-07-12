@@ -3,13 +3,13 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * Database controller class
+ * Database class
  * Author: Hao Zheng
  *
  * Default settings:
  * username = root, password = 123123123, server name = localhost
  */
-public class DataController
+public class DB_Cov19
 {
 	private Connection conn = null;
 	String dbmsName;

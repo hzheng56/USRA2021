@@ -31,7 +31,7 @@ public class AuditorCov19
 	{
 		String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/COVID19-eng-2021Jun08.csv";
 		String srcTable = "2021Jun08";
-		DataController app = new DataController();
+		DB_Cov19 app = new DB_Cov19();
 		app.getConnection();
 		app.dbmsName = "proj_cov19";
 		app.setupDBMS();
@@ -64,7 +64,7 @@ public class AuditorCov19
 	}
 
 	/* Split tables from a src table by month & quarter */
-	public static void splitPeriod(DataController app, String[] tablesYr)
+	public static void splitPeriod(DB_Cov19 app, String[] tablesYr)
 	{
 		// by month
 		String[] yr20_mth = new String[NUM_MONTHS];
@@ -88,7 +88,7 @@ public class AuditorCov19
 	}
 
 	/* Generate summaries */
-	public static void createSummary(DataController app, String[] tablesReg)
+	public static void createSummary(DB_Cov19 app, String[] tablesReg)
 	{
 		/* Create "srcTable-regions-hp_status.csv" tables */
 		List<String[]> reg_hp = new ArrayList<>();	// 5 * 3 tables
