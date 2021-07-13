@@ -56,7 +56,9 @@ public class PreProc_SR311 extends DB_Proj21
 			stmt.executeUpdate(sql);
 
 			// change attribute TIME into 24 hours format
-			sql = "UPDATE " + newTable + " SET TIME = TIME + '12' WHERE AMPM = 'PM' AND TIME != '12'";
+			sql = "UPDATE " + newTable + " SET TIME = CASE" +
+					" WHEN AMPM = 'PM' AND TIME != '12' THEN TIME + '12' " +
+					" WHEN AMPM = 'AM' AND TIME = '12' THEN TIME - '12' ELSE TIME END";
 			stmt.executeUpdate(sql);
 
 			// delete attribute AMPM
