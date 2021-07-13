@@ -22,7 +22,7 @@
   ```
   mysql> use proj_cov19
   
-  Database changed
+  DB_Proj21 changed
   ```
 
 ### 5. 导入文件：

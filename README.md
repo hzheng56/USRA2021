@@ -1,6 +1,6 @@
 # USRA2021
 
-## Database Q&A
+## DB_Proj21 Q&A
 
 ### 1. Connect to local database
 - Input `/usr/local/MySQL/bin/mysql -u root -p` in the Terminal, where `root` is the username of database.
@@ -20,7 +20,7 @@
   ```
   mysql> use proj_cov19
   
-  Database changed
+  DB_Proj21 changed
   ```
 
 ### 5. Import a file
