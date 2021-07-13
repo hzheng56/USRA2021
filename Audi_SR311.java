@@ -19,8 +19,11 @@ public class Audi_SR311
 		app.initialTable();
 		app.importTable(srcFile);
 
-		/* export the modified source file */
-		app.exportTable(app.createNewVersion(), "/");
+		/* Create and export the modified source table */
+		String newSrcTable = app.createNewVersion();
+		app.exportTable(newSrcTable, "/");
+//		app.dropTable(app.srcTable);
+//		app.srcTable = newSrcTable;
 
 		/* Shutdown */
 		app.shutdown();

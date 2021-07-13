@@ -57,7 +57,7 @@ public class DB_Proj21
 			Statement stmt = conn.createStatement();
 			String sql = "LOAD DATA INFILE '" + srcFile + "' REPLACE INTO TABLE " + dbmsName + "." +
 					srcTable + " FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES";
-			stmt.executeQuery(sql);
+			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

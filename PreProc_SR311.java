@@ -20,7 +20,7 @@ public class PreProc_SR311 extends DB_Proj21
 		dbmsName = "proj_sr311";
 	}
 
-	/* Initialize table columns */
+	/* Initialize attribute names */
 	void initialTable()
 	{
 		try {
@@ -56,7 +56,7 @@ public class PreProc_SR311 extends DB_Proj21
 			stmt.executeUpdate(sql);
 
 			// change attribute TIME into 24 hours format
-			sql = "UPDATE " + newTable + " SET TIME = TIME + '12' WHERE AMPM = 'PM'";
+			sql = "UPDATE " + newTable + " SET TIME = TIME + '12' WHERE AMPM = 'PM' AND TIME != '12'";
 			stmt.executeUpdate(sql);
 
 			// delete attribute AMPM

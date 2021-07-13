@@ -24,7 +24,7 @@ create table if not exists 2021sr311_m (
 alter table 2021sr311_m add ID integer not null primary key auto_increment first;
 
 # 将TIME列变为24小时制, 并删除多余列
-update 2021sr311_m set TIME = TIME + '12' where AMPM = 'PM';
+update 2021sr311_m set TIME = TIME + '12' where AMPM = 'PM' and TIME != '12';
 alter table 2021sr311_m drop column AMPM;
 
 # 去掉经度列和纬度列的标点
