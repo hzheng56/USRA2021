@@ -2,7 +2,7 @@
  * 311 service request database auditor class
  * Author: Hao Zheng
  *
- * Used to process 311_Service_Request.csv
+ * This class generates sub-tables and summary info from 311_Service_Request.csv
  */
 public class Audi_SR311
 {
@@ -10,8 +10,7 @@ public class Audi_SR311
 	public static void main(String[] args)
 	{
 		String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/311_Service_Request.csv";
-//		String srcTable = "311SR";
-		Proc_SR311 app = new Proc_SR311();
+		PreProc_SR311 app = new PreProc_SR311();
 		app.getConnection();
 		app.setupDBMS();
 
@@ -20,8 +19,10 @@ public class Audi_SR311
 		app.initialTable();
 		app.importTable(srcFile);
 
-		app.updateServiceArea();
+		/* export the modified source file */
+		app.exportTable(app.createNewVersion(), "/");
 
-
+		/* Shutdown */
+		app.shutdown();
 	}
 }

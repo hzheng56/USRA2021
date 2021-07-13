@@ -5,10 +5,11 @@ import java.util.*;
  * Covid-19 database processor class
  * Author: Hao Zheng
  *
- * Used to process Covid19.csv
+ * This class contains methods exclusively for Covid19.csv
  */
 public class Proc_Cov19 extends DB_Proj21
 {
+	/* Constants */
 	private final int[][] MONTHS_20 = { {0, 4}, {5, 8}, {9, 12}, {13, 17}, {18, 21},
 			{22, 25}, {26, 30}, {31, 34}, {35, 39}, {40, 43}, {44, 47}, {48, 52} };
 	private final int[][] MONTHS_21 = { {0, 4}, {5, 8}, {9, 13}, {14, 17}, {18, 21},

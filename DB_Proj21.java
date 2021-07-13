@@ -6,8 +6,8 @@ import java.util.*;
  * Database class
  * Author: Hao Zheng
  *
- * Default settings:
- * username = root, password = 123123123, server name = localhost
+ * This class is the database for 2021 URA/USRA projects
+ * Default settings: username = root, password = 123123123, server name = localhost
  */
 public class DB_Proj21
 {
@@ -160,7 +160,7 @@ public class DB_Proj21
 	{
 		try {
 			Statement stmt = conn.createStatement();
-			String sql = "SELECT CONCAT('DROP TABLE IF EXISTS `', TABLE_NAME, '`;')" +
+			String sql = "SELECT CONCAT('DROP TABLE IF EXISTS ', TABLE_NAME, ';')" +
 					" FROM information_schema.tables WHERE TABLE_SCHEMA = '" + dbmsName + "'";
 			stmt.execute(sql);
 			ResultSet rs = stmt.executeQuery(sql);
@@ -181,7 +181,7 @@ public class DB_Proj21
 	{
 		if (table != null) {
 			try {
-				String filename = "db_outputs/" + path + table + ".csv";
+				String filename = "db_outputs/" + dbmsName + path + table + ".csv";
 				String sql = "SELECT * FROM " + table;
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery(sql);
