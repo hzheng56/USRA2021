@@ -17,8 +17,8 @@ public class Audi_Cov19
 
 		/* >>> NO NEED TO RUN THESE METHODS AGAIN IF NOT CHANGE srcFile <<< */
 		app.dropAllTables();
-		app.initialTable(srcTable);
-		app.importTable(srcFile, srcTable);
+		app.initialTable();
+		app.importTable(srcFile);
 
 		/* Create tables from the src and export */
 		String[] tablesReg = app.createTables(srcTable, app.REGIONS, "COV_REG");	// 5 tables

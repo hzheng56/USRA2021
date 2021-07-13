@@ -6,6 +6,22 @@
  */
 public class Audi_SR311
 {
-	String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/COVID19-eng-2021Jun08.csv";
-	String srcTable = "2021Jun08";
+	/* Main method */
+	public static void main(String[] args)
+	{
+		String srcFile = "/Users/zhenghao/IdeaProjects/USRA2021/db_inputs/311_Service_Request.csv";
+//		String srcTable = "311SR";
+		Proc_SR311 app = new Proc_SR311();
+		app.getConnection();
+		app.setupDBMS();
+
+		/* >>> NO NEED TO RUN THESE METHODS AGAIN IF NOT CHANGE srcFile <<< */
+		app.dropAllTables();
+		app.initialTable();
+		app.importTable(srcFile);
+
+		app.updateServiceArea();
+
+
+	}
 }

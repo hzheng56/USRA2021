@@ -13,6 +13,7 @@ public class DB_Proj21
 {
 	Connection conn = null;
 	String dbmsName;
+	String srcTable;
 
 	/* Initialize database connection */
 	void getConnection()
@@ -50,12 +51,12 @@ public class DB_Proj21
 	}
 
 	/* Import file from local drive to database */
-	void importTable(String srcFile, String srcTable)
+	void importTable(String srcFile)
 	{
 		try {
 			Statement stmt = conn.createStatement();
 			String sql = "LOAD DATA INFILE '" + srcFile + "' REPLACE INTO TABLE " + dbmsName + "." +
-					srcTable + " FIELDS TERMINATED BY ',' IGNORE 1 LINES";
+					srcTable + " FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES";
 			stmt.executeQuery(sql);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -97,7 +98,7 @@ public class DB_Proj21
 	/* Create summary table by aggregate function */
 	String SummarizeTable(String srcTable, String label)
 	{
-		String newTable = "summary_" + srcTable;
+		String newTable = "SUM_" + srcTable;
 		dropTable(newTable); // drop the previously generated table
 		try {
 			Statement stmt = conn.createStatement();

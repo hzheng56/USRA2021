@@ -26,7 +26,7 @@
   ```
 
 ### 5. 导入文件：
-- MySQL的`secure_file_priv`参数是用来限制`LOAD DATA`, `SELECT ... OUTFILE`, 以及 `LOAD_FILE()`传到哪个指定目录的。
+- MySQL 的`secure_file_priv`参数是用来限制`LOAD DATA`, `SELECT ... OUTFILE`, 以及 `LOAD_FILE()`传到哪个指定目录的。
 
     - 若`secure_file_priv`的值为null，表示限制`mysqld`不允许导入或导出。
     - `secure_file_priv`的值为/tmp/，表示限制`mysqld`的导入或导出只能发生在/tmp/目录下。
@@ -50,7 +50,31 @@
     - 如果路径`/usr/local/etc`中不存在此文件，则需要输入`sudo nano /etc/my.cnf`创建一个。
     - 格式样板`mysql-log-rotate`位于`/usr/local/mysql/support-files/`。
 
-### 6. 断开数据库：
+### 6. SQL模式
+- 在 MySQL 中使用`load data infile`命令导入数据文件到 MySQL 数据库中的时候，如果遇到 MySQL 错误：`ERROR 1261 (01000)` ，则很可能是由于数据文件中的列数跟 MySQL 数据表字段数目没有完全匹配，并且`sql_mode`设为`strict`模式的缘故。
+- 解决方案：设置 MySQL 的`sql_mode`变量值为`''`，把`strict_trans_tables`从`sql_mode`中去掉。
+  ```
+  mysql> show variables like 'sql_mode';
+  +---------------+-----------------------------------------------------------------------------------------------------------------------+
+  | Variable_name |							Value                                                           |
+  +---------------+-----------------------------------------------------------------------------------------------------------------------+
+  | sql_mode      | ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION |
+  +---------------+-----------------------------------------------------------------------------------------------------------------------+
+  1 row in set (0.00 sec)
+
+  mysql> set sql_mode='';
+  Query OK, 0 rows affected (0.01 sec)
+
+  mysql> show variables like 'sql_mode';
+  +---------------+-------+
+  | Variable_name | Value |
+  +---------------+-------+
+  | sql_mode      |       |
+  +---------------+-------+
+  1 row in set (0.00 sec)
+  ```
+
+### 7. 断开数据库：
 - 在终端中输入`quit`即可。
   ```
   mysql> quit
