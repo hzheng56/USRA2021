@@ -67,7 +67,7 @@ public class PreProc_SR311 extends DB_Proj21
 			// remove brackets and quotation marks in attributes LAT and LNG
 			sql = "UPDATE " + newTable + " SET LAT = REPLACE (LAT, '\"(', '')";
 			stmt.executeUpdate(sql);
-			sql = "UPDATE " + newTable + " SET LNG = REPLACE (LNG, ')\"', '');";
+			sql = "UPDATE " + newTable + " SET LNG = REPLACE (LNG, ')\"', '')";
 			stmt.executeUpdate(sql);
 
 			// convert types of attributes to int/double
