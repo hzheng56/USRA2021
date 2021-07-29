@@ -27,7 +27,6 @@ public class Proc_Cov19 extends DB_Proj21
 	/* Constructor */
 	public Proc_Cov19()
 	{
-		super();
 		srcTable = "2021Jun08";
 		dbmsName = "proj_cov19";
 	}

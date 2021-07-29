@@ -15,7 +15,6 @@ public class PreProc_SR311 extends DB_Proj21
 	/* Constructor */
 	public PreProc_SR311()
 	{
-		super();
 		srcTable = "2021sr311";
 		dbmsName = "proj_sr311";
 	}
